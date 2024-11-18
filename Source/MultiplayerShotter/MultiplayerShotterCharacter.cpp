@@ -10,6 +10,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "Components/WidgetComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -52,6 +53,9 @@ AMultiplayerShotterCharacter::AMultiplayerShotterCharacter()
 
 	bUseControllerRotationYaw = false; 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
+
+	overHeadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
+	overHeadWidget->SetupAttachment(RootComponent);
 
 }
 
