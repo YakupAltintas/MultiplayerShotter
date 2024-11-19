@@ -7,7 +7,7 @@
 #include "Weapon.generated.h"
 
 UENUM(BlueprintType)
-enum class EWeaponState:uint8 {
+enum class EWeaponState :uint8 {
 	EWS_Initial UMETA(DisplayName = "Initial State"),
 	EWS_Equipped UMETA(DisplayName = "Equipped"),
 	EWS_Dropped UMETA(DisplayName = "Dropped"),
@@ -20,13 +20,21 @@ UCLASS()
 class MULTIPLAYERSHOTTER_API AWeapon : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	AWeapon();
 	virtual void Tick(float DeltaTime) override;
 
 protected:
 	virtual void BeginPlay() override;
+
+	UFUNCTION()
+	virtual void OnSphereOverlap(UPrimitiveComponent* overlappedComponent,
+		AActor* otherActor,
+		UPrimitiveComponent* otherComp,
+		int32 otherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& sweepResult);
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
@@ -35,7 +43,10 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	class USphereComponent* areaSphere;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	EWeaponState weaponState;
+
+	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
+	class UWidgetComponent* pickupWidget;
 
 };

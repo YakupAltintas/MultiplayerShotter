@@ -3,6 +3,8 @@
 
 #include "Weapon.h"
 #include "Components/SphereComponent.h"
+#include "Components/WidgetComponent.h"
+#include "MultiplayerShotter/MultiplayerShotterCharacter.h" 
 
 // Sets default values
 AWeapon::AWeapon()
@@ -11,7 +13,6 @@ AWeapon::AWeapon()
 	bReplicates = true;
 
 	weaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
-	weaponMesh->SetupAttachment(RootComponent);
 	SetRootComponent(weaponMesh);
 
 	weaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
@@ -23,6 +24,8 @@ AWeapon::AWeapon()
 	areaSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	areaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision );
 
+	pickupWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PickupWidget"));
+	pickupWidget->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -33,6 +36,20 @@ void AWeapon::BeginPlay()
 	{ 
 		areaSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		areaSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+		areaSphere->OnComponentBeginOverlap.AddDynamic(this,&AWeapon::OnSphereOverlap);
+	}
+	if (pickupWidget)
+	{
+		pickupWidget->SetVisibility(false);
+	}
+}
+
+void AWeapon::OnSphereOverlap(UPrimitiveComponent* overlappedComponent, AActor* otherActor, UPrimitiveComponent* otherComp, int32 otherBodyIndex, bool bFromSweep, const FHitResult& sweepResult)
+{
+	AMultiplayerShotterCharacter* character = Cast<AMultiplayerShotterCharacter>(otherActor);
+	if (character && pickupWidget)
+	{
+		pickupWidget->SetVisibility(true);
 	}
 }
 
