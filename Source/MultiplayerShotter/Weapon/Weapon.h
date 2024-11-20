@@ -24,17 +24,25 @@ class MULTIPLAYERSHOTTER_API AWeapon : public AActor
 public:
 	AWeapon();
 	virtual void Tick(float DeltaTime) override;
-
+	void showPickupWidget(bool bShowWidget);
 protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
-	virtual void OnSphereOverlap(UPrimitiveComponent* overlappedComponent,
+	virtual void onSphereOverlap(
+		UPrimitiveComponent* overlappedComponent,
 		AActor* otherActor,
 		UPrimitiveComponent* otherComp,
 		int32 otherBodyIndex,
 		bool bFromSweep,
 		const FHitResult& sweepResult);
+
+	UFUNCTION()
+	void onSphereEndOverlap(
+		UPrimitiveComponent* overlappedComponent,
+		AActor* otherActor,
+		UPrimitiveComponent* otherComp,
+		int32 otherBodyIndex );
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")

@@ -11,6 +11,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "Components/WidgetComponent.h"
+#include "Net/UnrealNetwork.h"
+#include "Weapon/Weapon.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -59,10 +61,49 @@ AMultiplayerShotterCharacter::AMultiplayerShotterCharacter()
 
 }
 
+void AMultiplayerShotterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME_CONDITION(AMultiplayerShotterCharacter, overlappingWeapon,COND_OwnerOnly);
+}
+
+void AMultiplayerShotterCharacter::SetOverlappingWeapon(AWeapon* weapon)
+{
+	if (overlappingWeapon) {
+		overlappingWeapon->showPickupWidget(false);
+	}
+	overlappingWeapon = weapon;
+	if (IsLocallyControlled())
+	{
+		if (overlappingWeapon) {
+			overlappingWeapon->showPickupWidget(true);
+		}
+	}
+}
+
 void AMultiplayerShotterCharacter::BeginPlay()
 {
-	// Call the base class  
 	Super::BeginPlay();
+}
+
+void AMultiplayerShotterCharacter::Tick(float deltaTime)
+{
+	Super::Tick(deltaTime);
+	
+}
+
+
+
+void AMultiplayerShotterCharacter::onRep_OverlappingWeapon(AWeapon* lastWeapon)
+{
+	if (overlappingWeapon)
+	{
+		overlappingWeapon->showPickupWidget(true);
+	}
+	if (lastWeapon)
+	{
+		lastWeapon->showPickupWidget(false);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////

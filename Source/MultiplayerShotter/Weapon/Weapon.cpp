@@ -28,7 +28,12 @@ AWeapon::AWeapon()
 	pickupWidget->SetupAttachment(RootComponent);
 }
 
-// Called when the game starts or when spawned
+void AWeapon::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+}
+
 void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
@@ -36,7 +41,8 @@ void AWeapon::BeginPlay()
 	{ 
 		areaSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		areaSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
-		areaSphere->OnComponentBeginOverlap.AddDynamic(this,&AWeapon::OnSphereOverlap);
+		areaSphere->OnComponentBeginOverlap.AddDynamic(this,&AWeapon::onSphereOverlap);
+		areaSphere->OnComponentEndOverlap.AddDynamic(this,&ThisClass::onSphereEndOverlap);
 	}
 	if (pickupWidget)
 	{
@@ -44,19 +50,29 @@ void AWeapon::BeginPlay()
 	}
 }
 
-void AWeapon::OnSphereOverlap(UPrimitiveComponent* overlappedComponent, AActor* otherActor, UPrimitiveComponent* otherComp, int32 otherBodyIndex, bool bFromSweep, const FHitResult& sweepResult)
+void AWeapon::onSphereOverlap(UPrimitiveComponent* overlappedComponent, AActor* otherActor, UPrimitiveComponent* otherComp, int32 otherBodyIndex, bool bFromSweep, const FHitResult& sweepResult)
 {
 	AMultiplayerShotterCharacter* character = Cast<AMultiplayerShotterCharacter>(otherActor);
-	if (character && pickupWidget)
+	if (character )
 	{
-		pickupWidget->SetVisibility(true);
+		character->SetOverlappingWeapon(this);
 	}
 }
 
-// Called every frame
-void AWeapon::Tick(float DeltaTime)
+void AWeapon::onSphereEndOverlap(UPrimitiveComponent* overlappedComponent, AActor* otherActor, UPrimitiveComponent* otherComp, int32 otherBodyIndex)
 {
-	Super::Tick(DeltaTime);
+	AMultiplayerShotterCharacter* character = Cast<AMultiplayerShotterCharacter>(otherActor);
+	if (character)
+	{
+		character->SetOverlappingWeapon(nullptr);
+	}
+}
 
+void AWeapon::showPickupWidget(bool bShowWidget)
+{
+	if (pickupWidget)
+	{
+		pickupWidget->SetVisibility(bShowWidget);
+	}
 }
 

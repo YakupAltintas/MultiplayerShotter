@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+#include "Weapon/Weapon.h"
 #include "MultiplayerShotterCharacter.generated.h"
 
 class USpringArmComponent;
@@ -15,7 +16,7 @@ struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
-UCLASS(config=Game)
+UCLASS(config = Game)
 class AMultiplayerShotterCharacter : public ACharacter
 {
 	GENERATED_BODY()
@@ -27,7 +28,7 @@ class AMultiplayerShotterCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCamera;
-	
+
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
@@ -46,31 +47,28 @@ class AMultiplayerShotterCharacter : public ACharacter
 
 public:
 	AMultiplayerShotterCharacter();
-
-	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-
-	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	void SetOverlappingWeapon(AWeapon* weapon);
 
 protected:
-
-	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
-
-	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
-			
-	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
-	// To add mapping context
-	virtual void BeginPlay();
+	virtual void BeginPlay() override;
+	virtual void Tick(float deltaTime) override;
 
 private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UWidgetComponent* overHeadWidget;
-	
+
+	UPROPERTY(ReplicatedUsing = onRep_OverlappingWeapon)
+	AWeapon* overlappingWeapon	;
+
+	UFUNCTION()
+	void onRep_OverlappingWeapon(AWeapon* lastWeapon);
+
 };
 
