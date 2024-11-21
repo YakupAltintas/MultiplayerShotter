@@ -44,17 +44,24 @@ class AMultiplayerShotterCharacter : public ACharacter
 	/** Look Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* EquipAction;
 
 public:
 	AMultiplayerShotterCharacter();
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void PostInitializeComponents() override;
 	void SetOverlappingWeapon(AWeapon* weapon);
 
 protected:
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+	void EquipButtonPressed();
+
+
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void BeginPlay() override;
 	virtual void Tick(float deltaTime) override;
@@ -69,6 +76,9 @@ private:
 
 	UFUNCTION()
 	void onRep_OverlappingWeapon(AWeapon* lastWeapon);
+
+	UPROPERTY(VisibleAnywhere)
+	class UCombatComponent* Combat;
 
 };
 

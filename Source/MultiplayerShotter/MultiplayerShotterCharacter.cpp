@@ -13,6 +13,7 @@
 #include "Components/WidgetComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Weapon/Weapon.h"
+#include "GameComponents/CombatComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -59,12 +60,23 @@ AMultiplayerShotterCharacter::AMultiplayerShotterCharacter()
 	overHeadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
 	overHeadWidget->SetupAttachment(RootComponent);
 
+	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
+	Combat->SetIsReplicated(true);
 }
 
 void AMultiplayerShotterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME_CONDITION(AMultiplayerShotterCharacter, overlappingWeapon,COND_OwnerOnly);
+}
+
+void AMultiplayerShotterCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	if (Combat)
+	{
+		Combat->character = this;
+	}
 }
 
 void AMultiplayerShotterCharacter::SetOverlappingWeapon(AWeapon* weapon)
@@ -132,6 +144,7 @@ void AMultiplayerShotterCharacter::SetupPlayerInputComponent(UInputComponent* Pl
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMultiplayerShotterCharacter::Look);
+		EnhancedInputComponent->BindAction(EquipAction, ETriggerEvent::Triggered, this, &AMultiplayerShotterCharacter::EquipButtonPressed);
 	}
 	else
 	{
@@ -173,4 +186,12 @@ void AMultiplayerShotterCharacter::Look(const FInputActionValue& Value)
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
+}
+
+void AMultiplayerShotterCharacter::EquipButtonPressed()
+{
+	if (Combat && HasAuthority())
+	{
+		Combat->EquipWeapon(overlappingWeapon);
+	}GEngine->AddOnScreenDebugMessage(-1,5.f,FColor::Blue,TEXT("E tusuna basildi"));
 }

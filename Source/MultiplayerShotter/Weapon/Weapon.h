@@ -42,7 +42,7 @@ protected:
 		UPrimitiveComponent* overlappedComponent,
 		AActor* otherActor,
 		UPrimitiveComponent* otherComp,
-		int32 otherBodyIndex );
+		int32 otherBodyIndex);
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
@@ -57,4 +57,6 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	class UWidgetComponent* pickupWidget;
 
+public:
+	FORCEINLINE void SetWeaponState(EWeaponState state) { weaponState = state; }
 };
