@@ -24,7 +24,7 @@ AMultiplayerShotterCharacter::AMultiplayerShotterCharacter()
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
-		
+
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -54,7 +54,7 @@ AMultiplayerShotterCharacter::AMultiplayerShotterCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-	bUseControllerRotationYaw = false; 
+	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	overHeadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
@@ -62,12 +62,14 @@ AMultiplayerShotterCharacter::AMultiplayerShotterCharacter()
 
 	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
 	Combat->SetIsReplicated(true);
+
+	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 }
 
 void AMultiplayerShotterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME_CONDITION(AMultiplayerShotterCharacter, overlappingWeapon,COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AMultiplayerShotterCharacter, overlappingWeapon, COND_OwnerOnly);
 }
 
 void AMultiplayerShotterCharacter::PostInitializeComponents()
@@ -96,7 +98,7 @@ void AMultiplayerShotterCharacter::SetOverlappingWeapon(AWeapon* weapon)
 bool AMultiplayerShotterCharacter::isWeaponEquipped()
 {
 	return (Combat && Combat->EquippedWeapon);
-	 
+
 }
 
 void AMultiplayerShotterCharacter::BeginPlay()
@@ -107,7 +109,7 @@ void AMultiplayerShotterCharacter::BeginPlay()
 void AMultiplayerShotterCharacter::Tick(float deltaTime)
 {
 	Super::Tick(deltaTime);
-	
+
 }
 
 
@@ -124,6 +126,7 @@ void AMultiplayerShotterCharacter::onRep_OverlappingWeapon(AWeapon* lastWeapon)
 	}
 }
 
+
 void AMultiplayerShotterCharacter::EquipButtonPressed()
 {
 	if (Combat)
@@ -137,6 +140,18 @@ void AMultiplayerShotterCharacter::EquipButtonPressed()
 			ServerEquipButtonPressed();
 		}
 	}
+}
+
+void AMultiplayerShotterCharacter::CrouchButtonPressed()
+{
+	if (bIsCrouched)
+	{
+		UnCrouch();
+	}
+	else {
+		Crouch();
+	}
+
 }
 
 void AMultiplayerShotterCharacter::ServerEquipButtonPressed_Implementation()
@@ -160,10 +175,10 @@ void AMultiplayerShotterCharacter::SetupPlayerInputComponent(UInputComponent* Pl
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
-	
+
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
-		
+
 		// Jumping
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
@@ -173,7 +188,12 @@ void AMultiplayerShotterCharacter::SetupPlayerInputComponent(UInputComponent* Pl
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMultiplayerShotterCharacter::Look);
+
+		//Equip Weapon
 		EnhancedInputComponent->BindAction(EquipAction, ETriggerEvent::Triggered, this, &AMultiplayerShotterCharacter::EquipButtonPressed);
+
+		//Crounching
+		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AMultiplayerShotterCharacter::CrouchButtonPressed);
 	}
 	else
 	{
@@ -194,7 +214,7 @@ void AMultiplayerShotterCharacter::Move(const FInputActionValue& Value)
 
 		// get forward vector
 		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	
+
 		// get right vector 
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 

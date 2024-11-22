@@ -28,4 +28,6 @@ void UFirstCharacterAnimInstance::NativeUpdateAnimation(float deltaTime)
 	bIsAccelerating = character->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0 ? true:false;
 
 	bWeaponEquipped = character->isWeaponEquipped();
+
+	bIsCrouched = character->bIsCrouched;
 }
