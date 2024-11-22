@@ -5,6 +5,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
 #include "MultiplayerShotter/MultiplayerShotterCharacter.h" 
+#include "Net/UnrealNetwork.h" 
 
 // Sets default values
 AWeapon::AWeapon()
@@ -33,6 +34,13 @@ void AWeapon::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
+
+void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AWeapon,weaponState);
+}
+
 
 void AWeapon::BeginPlay()
 {
@@ -65,6 +73,29 @@ void AWeapon::onSphereEndOverlap(UPrimitiveComponent* overlappedComponent, AActo
 	if (character)
 	{
 		character->SetOverlappingWeapon(nullptr);
+	}
+}
+
+void AWeapon::onRep_WeaponState()
+{
+	switch (weaponState)
+	{
+	case EWeaponState::EWS_Equipped:
+		showPickupWidget(false);
+		areaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		break;
+	}
+}
+
+void AWeapon::SetWeaponState(EWeaponState state)
+{
+	weaponState = state;
+	switch (weaponState)
+	{
+	case EWeaponState::EWS_Equipped:
+		showPickupWidget(false);
+		areaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		break;
 	}
 }
 

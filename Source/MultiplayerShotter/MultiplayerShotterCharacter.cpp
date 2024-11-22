@@ -118,6 +118,29 @@ void AMultiplayerShotterCharacter::onRep_OverlappingWeapon(AWeapon* lastWeapon)
 	}
 }
 
+void AMultiplayerShotterCharacter::EquipButtonPressed()
+{
+	if (Combat)
+	{
+		if (HasAuthority())
+		{
+			Combat->EquipWeapon(overlappingWeapon);
+		}
+		else
+		{
+			ServerEquipButtonPressed();
+		}
+	}
+}
+
+void AMultiplayerShotterCharacter::ServerEquipButtonPressed_Implementation()
+{
+	if (Combat)
+	{
+		Combat->EquipWeapon(overlappingWeapon);
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Input
 
@@ -188,10 +211,4 @@ void AMultiplayerShotterCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
-void AMultiplayerShotterCharacter::EquipButtonPressed()
-{
-	if (Combat && HasAuthority())
-	{
-		Combat->EquipWeapon(overlappingWeapon);
-	}GEngine->AddOnScreenDebugMessage(-1,5.f,FColor::Blue,TEXT("E tusuna basildi"));
-}
+
