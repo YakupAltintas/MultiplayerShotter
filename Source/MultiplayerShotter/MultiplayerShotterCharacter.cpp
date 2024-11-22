@@ -93,6 +93,12 @@ void AMultiplayerShotterCharacter::SetOverlappingWeapon(AWeapon* weapon)
 	}
 }
 
+bool AMultiplayerShotterCharacter::isWeaponEquipped()
+{
+	return (Combat && Combat->EquippedWeapon);
+	 
+}
+
 void AMultiplayerShotterCharacter::BeginPlay()
 {
 	Super::BeginPlay();

@@ -54,7 +54,9 @@ public:
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
+
 	void SetOverlappingWeapon(AWeapon* weapon);
+	bool isWeaponEquipped();
 
 protected:
 	void Move(const FInputActionValue& Value);
