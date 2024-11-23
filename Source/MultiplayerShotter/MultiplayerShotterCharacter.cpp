@@ -101,6 +101,12 @@ bool AMultiplayerShotterCharacter::isWeaponEquipped()
 
 }
 
+bool AMultiplayerShotterCharacter::Aiming()
+{
+
+	return (Combat && Combat->bAiming);
+}
+
 void AMultiplayerShotterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -154,6 +160,25 @@ void AMultiplayerShotterCharacter::CrouchButtonPressed()
 
 }
 
+void AMultiplayerShotterCharacter::AimButtonPressed()
+{
+
+	if (Combat)
+	{
+		Combat->SetAiming(true);
+	}
+}
+
+void AMultiplayerShotterCharacter::AimButtonReleased()
+{
+	if (Combat)
+	{
+		Combat->SetAiming(false);
+	}
+}
+
+
+
 void AMultiplayerShotterCharacter::ServerEquipButtonPressed_Implementation()
 {
 	if (Combat)
@@ -194,6 +219,10 @@ void AMultiplayerShotterCharacter::SetupPlayerInputComponent(UInputComponent* Pl
 
 		//Crounching
 		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AMultiplayerShotterCharacter::CrouchButtonPressed);
+		
+		//Aimming
+		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Started, this, &AMultiplayerShotterCharacter::AimButtonPressed);
+		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Completed, this, &AMultiplayerShotterCharacter::AimButtonReleased);
 	}
 	else
 	{

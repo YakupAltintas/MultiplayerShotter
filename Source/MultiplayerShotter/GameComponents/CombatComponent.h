@@ -7,12 +7,12 @@
 #include "CombatComponent.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class MULTIPLAYERSHOTTER_API UCombatComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	UCombatComponent();
 	friend class AMultiplayerShotterCharacter;
 
@@ -22,6 +22,11 @@ public:
 	void EquipWeapon(class AWeapon* WeaponToEquip);
 protected:
 	virtual void BeginPlay() override;
+	void SetAiming(bool bIsAiming);	
+
+	UFUNCTION(Server, Reliable)
+	void ServerSetAiming(bool bIsAiming);
+
 
 private:
 	class AMultiplayerShotterCharacter* character;
@@ -29,4 +34,6 @@ private:
 	UPROPERTY(Replicated)
 	AWeapon* EquippedWeapon;
 
+	UPROPERTY(Replicated)
+	bool bAiming;
 };

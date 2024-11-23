@@ -30,4 +30,5 @@ void UFirstCharacterAnimInstance::NativeUpdateAnimation(float deltaTime)
 	bWeaponEquipped = character->isWeaponEquipped();
 
 	bIsCrouched = character->bIsCrouched;
+	bAiming = character->Aiming();
 }
